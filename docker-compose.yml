@@ -1,0 +1,15 @@
+#version: "3.9"
+
+services:
+  db:
+#    platform: linux/arm64
+    platform: linux/amd64
+    image: postgis/postgis:15-3.3
+    container_name: landit-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: landit
+    ports:
+      - "5432:5432"
+
