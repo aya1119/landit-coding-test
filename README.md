@@ -17,7 +17,9 @@
 - npm
 
 ### リポジトリ取得
-```bash```
+```
+bash
+```
 git clone [https://github.com/aya1119/landit-coding-test.git](https://github.com/aya1119/landit-coding-test.git)
 cd landit-coding-test
 
