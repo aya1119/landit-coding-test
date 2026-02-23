@@ -5,6 +5,8 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import "leaflet-defaulticon-compatibility";
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Circle } from "react-leaflet";
+import L from "leaflet"; 
+import type { LeafletEvent, Map as LeafletMap  } from "leaflet";
 
 
 type Spot = {
@@ -18,7 +20,7 @@ type Spot = {
 
 function CenterWatcher(props: { onMoveEnd: (lat: number, lng: number) => void }) {
   useMapEvents({
-    moveend: (e) => {
+    moveend: (e: LeafletEvent) => {
       const c = e.target.getCenter();
       props.onMoveEnd(c.lat, c.lng);
     },
