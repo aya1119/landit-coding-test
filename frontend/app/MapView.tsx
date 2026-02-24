@@ -74,7 +74,8 @@ export default function MapView() {
       radiusKm: String(radiusKm),
     });
 
-    const res = await fetch(`http://localhost:3001/spots?${qs.toString()}`);
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001";
+    const res = await fetch(`${base}/spots?${qs.toString()}`);
 
     if (!res.ok) throw new Error(`spots api failed: ${res.status}`);
 

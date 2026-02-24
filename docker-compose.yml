@@ -1,15 +1,59 @@
-#version: "3.9"
-
 services:
   db:
-#    platform: linux/arm64
     platform: linux/amd64
     image: postgis/postgis:15-3.3
-    container_name: landit-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: landit
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d landit"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    image: node:20-bookworm-slim
+    working_dir: /app
+    environment:
+      PORT: 3001
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_NAME: landit
+      FRONTEND_ORIGIN: http://localhost:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - backend_node_modules:/app/node_modules
+    command: sh -c "npm ci && npm run start:dev"
+
+  frontend:
+    image: node:20-bookworm-slim
+    working_dir: /app
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    command: sh -c "npm ci && npm run dev -- -H 0.0.0.0 -p 3000"
+
+volumes:
+  pgdata:
+  backend_node_modules:
+  frontend_node_modules:
 
