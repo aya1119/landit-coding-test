@@ -1,77 +1,118 @@
 # Landit Coding Test - 位置情報探索アプリ
 
 ## 概要
-提供されたスポットデータをデータベースへ自動インポートし、地図上で周辺スポットを探索できるWebアプリケーションです。
-ユーザーは地図操作を行いながら、以下の機能をリアルタイムに確認できます。
-- 半径検索: 地図中心地点を基準としたスポットの絞り込み
-- マーカー表示: 検索結果を地図上に可視化
-- 一覧表示: 地図と連動したスポット情報のリスト表示
 
----
+提供されたスポットCSVデータをデータベースへ自動インポートし、  
+地図上で周辺スポットを探索できるWebアプリケーションです。
+
+ユーザーは地図操作を行いながら以下を確認できます。
+
+- 地図中心地点を基準とした半径検索
+- スポットのマーカー表示
+- 地図と連動したスポット一覧表示
+
 
 ## 環境構築
 
 ### 必要環境
-- Docker / Docker Compose
-- Node.js (v18以上)
-- npm
 
-### リポジトリ取得
-```
-bash
-```
-git clone [https://github.com/aya1119/landit-coding-test.git](https://github.com/aya1119/landit-coding-test.git)
+- Docker
+- Docker Compose
+- Node.js（18以上）※ローカル実行時のみ
+
+
+## 実行手順
+
+### 1. リポジトリ取得
+
+```bash
+git clone https://github.com/aya1119/landit-coding-test.git
 cd landit-coding-test
-
-実行手順
-1. データベースの起動（PostgreSQL + PostGIS）
-まず、データの保存先となるデータベースを起動します。
-Bash
-
-docker compose up -d
-※ 初回起動時に以下の処理が自動的に実行されます：
-* PostgreSQLの起動
-* PostGIS Extension（地理空間情報機能）の有効化
-* CSVデータの自動インポート（Seed処理）
-2. バックエンドの起動（NestJS）
-別のターミナルを開き、APIサーバーを起動します。
-Bash
-
-cd backend
-# 依存パッケージのインストール（初回のみ）
-npm install
-# 開発モードで起動
-PORT=3001 npm run start:dev
-* APIエンドポイント: http://localhost:3001/spots
-3. フロントエンドの起動（Next.js）
-さらに別のターミナルを開き、画面側を起動します。
-Bash
-
-cd frontend
-# 依存パッケージのインストール（初回のみ）
-npm install
-# 開発モードで起動
-npm run dev
-* ブラウザ: http://localhost:3000
-
-使用技術と選定理由
-バックエンド
-* NestJS: 構造化された設計により、保守性の高いAPI構築が可能なため。
-* TypeORM: Entityベースでデータベース構造とコードを同期させるため。
-* PostgreSQL + PostGIS: ST_DWithin 関数を利用し、データベース側で高速な半径検索（距離検索）を実現するため。
-フロントエンド
-* Next.js (App Router): Reactベースの最新フレームワークで、効率的な構成管理を行うため。
-* Tailwind CSS: 直感的なスタイリングによりUI構築を高速化するため。
-* Leaflet: 軽量かつOSSの地図ライブラリ。Google Maps API等に依存せず実装可能なため採用。
-
-実装の工夫点
-1. データの自動投入: docker compose up を実行するだけで、プログラムを通じて自動的にCSVがインポートされる仕組みを構築しました。
-2. PostGISによる最適化: 距離計算をデータベース側（SQL）で行うことで、不要なデータ転送を減らし検索性能を向上させました。
-3. API通信の安定化: CORSエラーやポート競合、SSR環境下でのLeafletの動作不良を解消し、安定した動作環境を実現しました。
-
-今後の改善案
-* 検索結果のキャッシュ化によるさらなる高速化
-* 大量データ表示のためのマーカークラスタリング実装
-* ユーザーのお気に入りスポット保存機能（認証機能）
+```
 
 
+### 2. アプリケーション起動
+
+以下のコマンド **1つのみ**でアプリケーション一式が起動します。
+
+```bash
+docker compose up -d --build
+```
+
+起動されるサービス：
+
+- PostgreSQL + PostGIS（Database）
+- NestJS（Backend API）
+- Next.js（Frontend）
+
+
+### 3. ブラウザアクセス
+
+以下へアクセスしてください。
+
+```
+http://localhost:3000
+```
+
+地図画面が表示されれば起動成功です。
+
+
+## 使用した主要ライブラリとその選定理由
+
+### Backend
+
+#### NestJS
+- モジュール構造による責務分離が容易
+- 保守性・拡張性を考慮したAPI設計が可能
+
+#### TypeORM
+- EntityベースでDBスキーマをコード管理可能
+- NestJSとの親和性が高いため採用
+
+#### PostgreSQL + PostGIS
+- 地理空間検索機能を標準で利用可能
+- `ST_DWithin` による高速な距離検索を実現
+
+
+### Frontend
+
+#### Next.js（App Router）
+- Reactベースで構造管理が容易
+- Server / Client Component分離による拡張性確保
+
+#### React Leaflet
+- APIキー不要
+- OSSベースで軽量な地図表示が可能
+
+#### Tailwind CSS
+- UI実装速度向上
+- コンポーネント単位でスタイル管理可能
+
+
+## 実装時に特に工夫した点、および技術的な判断
+
+### Docker Composeによるワンコマンド起動
+
+課題要件である
+
+> docker compose up コマンド一つでアプリ一式が起動すること
+
+を満たすため、以下を実装しました。
+
+- DB / Backend / Frontend をDocker Composeで統合管理
+- DB起動完了後にBackendが起動する `healthcheck` を設定
+- `node_modules` をDocker Volumeで管理し環境差異を排除
+- コンテナ間通信をサービス名ベースで接続
+- API接続先を環境変数 (`NEXT_PUBLIC_API_BASE_URL`) により切替可能に設計
+
+これにより **環境依存のない再現可能な実行環境** を実現しました。
+
+
+## 時間が足りず簡略化した点・今後の改善
+
+- マーカー大量表示時のクラスタリング未実装
+- 認証機能・お気に入り保存機能未実装
+- APIレスポンスキャッシュ最適化未対応
+- 本番環境向けDocker multi-stage build未対応
+
+今後はパフォーマンス改善およびユーザー機能拡張を予定しています。
