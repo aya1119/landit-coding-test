@@ -38,7 +38,7 @@ services:
     command: sh -c "npm ci && npm run start:dev"
 
   frontend:
-    image: node:20-bookworm-slim
+    image: node:25-bookworm-slim
     working_dir: /app
     environment:
       NODE_ENV: development

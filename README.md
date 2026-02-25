@@ -18,8 +18,6 @@
 
 - Docker
 - Docker Compose
-- Node.js（25.6.1）※ローカル実行時のみ
-
 
 ## 実行手順
 
