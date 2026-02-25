@@ -23,19 +23,9 @@
 
 ## 実行手順
 
-### 1. リポジトリ取得
-
 ```bash
 git clone https://github.com/aya1119/landit-coding-test.git
 cd landit-coding-test
-```
-
-
-### 2. アプリケーション起動
-
-以下のコマンド **1つのみ**でアプリケーション一式が起動します。
-
-```bash
 docker compose up -d --build
 ```
 
@@ -46,10 +36,7 @@ docker compose up -d --build
 - Next.js（Frontend）
 
 
-### 3. ブラウザアクセス
-
 以下へアクセスしてください。
-
 ```
 http://localhost:3000
 ```
